@@ -9,6 +9,6 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate geno
+source activate ../envs
 
 python3 scripts/06b_classify_ukb.py

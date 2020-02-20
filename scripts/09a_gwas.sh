@@ -9,8 +9,8 @@
 set -e
 
 # module load anaconda/3-4.2.0
-# source activate geno
-# 
+# source activate ../envs
+#
 # python scripts/09b_remove_psam_sex_column.py
 # source deactivate
 

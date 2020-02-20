@@ -10,12 +10,12 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate geno
+source activate ../envs
 
 # cp /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/chr*.* data/kgp_raw/
 # cp /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/ukb/*_shared.snps data/intersecting_raw/
 
-for i in $(seq 1 22); 
+for i in $(seq 1 22);
 do
   python scripts/get_ambiguous_indel_snps.py data/kgp_raw/chr${i}.bim -o data/ambiguous_indel_snps/chr${i}.snps
   python scripts/remove_ambiguous_indel_snps.py data/intersecting_raw/chr${i}_shared.snps -r data/ambiguous_indel_snps/chr${i}.snps -o data/intersecting_filtered/chr${i}.snps

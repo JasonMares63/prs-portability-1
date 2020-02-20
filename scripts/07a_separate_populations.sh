@@ -9,7 +9,7 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate geno
+source activate ../envs
 
 # Create files with sample IDs for each group
 # Also does train/test splitting for the "target" individuals.
@@ -17,7 +17,7 @@ python scripts/07b_separate_populations.py
 source deactivate
 
 # Create new pgen files for each population
-for population in AFR AMR EAS EUR SAS 
+for population in AFR AMR EAS EUR SAS
 do
 echo $population
 /rigel/mfplab/users/mnz2108/plink/plink2 --pfile data/ukb_filtered/merged --keep data/ukb_populations/${population}_all.txt  --make-pgen --out data/ukb_populations/${population}_all

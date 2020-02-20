@@ -7,6 +7,6 @@
 #SBATCH --mem-per-cpu=3gb        # The memory the job will use per cpu core.
 
 module load anaconda/3-4.2.0
-source activate geno
+source activate ../envs
 
 Rscript scripts/_plot_pca.R

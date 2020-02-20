@@ -9,11 +9,11 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate geno
+source activate ../envs
 
 # Creates covariate file with age, sex, age*sex, age^2, age^2 * sex and PC1, ..., PC20
 python scripts/08b_create_covariates.py
 
-# Creates data/phenotypes/full_phenotypes.pheno, combining all phenotypes for GWAS 
+# Creates data/phenotypes/full_phenotypes.pheno, combining all phenotypes for GWAS
 Rscript scripts/08c_create_phenotypes_file.R
 
