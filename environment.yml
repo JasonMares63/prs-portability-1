@@ -6,8 +6,6 @@ dependencies:
   - conda-forge::pandas=1.0.1
   - conda-forge::pip=19.3.1
   - conda-forge::python=3.8.1
-  - conda-forge::pytz=2019.3
-  - conda-forge::python-dateutil=2.8.1
   - conda-forge::scikit-learn=0.22.1
   - conda-forge::scikit-allel=1.2.1
   - conda-forge::scipy=1.4.1
@@ -17,3 +15,6 @@ dependencies:
   - conda-forge::r-irkernel=1.1
   - conda-forge::r-cowplot=1.0.0
   - conda-forge::r-ggforce=0.3.1
+  - pip:
+    - pytz
+    - python-dateutil

@@ -12,27 +12,24 @@ set -e
 module load anaconda/3-4.2.0
 source activate ../envs
 
-cp /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/chr*.* data/kgp_raw/
-cp /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/ukb/*_shared.snps data/intersecting_raw/
-
 # 1000 Genomes Project
 ###############################################################################
 for i in $(seq 1 22);
 do
   # Identify indels and ambiguous variants and write them to a file
   python scripts/01a_get_ambiguous_indel_snps.py \
-    data/kgp_raw/chr${i}.bim \
+    /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/chr${i}.bim \
     -o data/ambiguous_indel_snps/chr${i}.snps
 
   # Remove the ambiguous or indel variants and write the resulting SNPs to a file
   python scripts/01b_remove_ambiguous_indel_snps.py \
-    data/intersecting_raw/chr${i}_shared.snps \
+    /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/ukb/chr${i}_shared.snps \
     -r data/ambiguous_indel_snps/chr${i}.snps \
     -o data/intersecting_filtered/chr${i}.snps
 
   # Convert from Plink 1 to Plink 2 and compute the SNPs to be dropped
   /rigel/mfplab/users/mnz2108/plink/plink2 \
-    --bfile data/kgp_raw/chr$i \
+    --bfile /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/chr$i \
     --maf 0.05 \
     --geno 0.01 \
     --indep-pairwise 1000 kb 1 0.2 \
