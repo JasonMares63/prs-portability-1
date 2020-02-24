@@ -10,7 +10,7 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate ../envs
+source activate prs
 
 # 1000 Genomes Project
 ###############################################################################
@@ -42,10 +42,10 @@ do
     --pfile data/kgp_filtered/chr$i \
     --extract data/kgp_filtered/chr${i}.prune.in \
     --make-bed \
-    --out data/kgp_merged/chr$i
+    --out data/kgp_filtered/chr$i
 
   # Append the output file path to a new file (for merging them all below)
-  printf "data/kgp_merged/chr%s\n" $i >> data/kgp_merged/kgp_merged_list.txt
+  printf "data/kgp_filtered/chr%s\n" $i >> data/kgp_merged/kgp_merged_list.txt
 done
 
 # Merge all the 1000 Genomes files into a single Plink 1 file
@@ -71,7 +71,7 @@ do
   /rigel/mfplab/users/mnz2108/plink/plink2 \
     --memory 40000 \
     --bgen /rigel/mfplab/users/hsm2137/ukbiobank/data/imputed/bgen_files/_001_ukb_imp_chr${i}_v2.bgen ref-first \
-    --sample data/ukb_raw/ukb_imp.sample \
+    --sample /rigel/mfplab/users/hsm2137/ukbiobank/data/imputed/bgen_files/ukb_imp.sample \
     --extract data/kgp_filtered/chr${i}.prune.in \
     --make-bed \
     --out data/ukb_filtered/chr${i}
@@ -84,7 +84,7 @@ done
 /rigel/mfplab/users/mnz2108/plink/plink \
   --memory 40000 \
   --merge-list data/ukb_merged/ukb_merged_list.txt \
-  --remove data/excluded_samples.sam \
+  --remove data/ukb_meta/excluded_samples.sam \
   --make-bed \
   --out data/ukb_merged/merged
 

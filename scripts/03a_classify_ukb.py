@@ -18,13 +18,13 @@ def load_1000_genomes(pc_cols):
     )
     # 1000 Genomes individual population labels
     kgp_pop_df = pd.read_csv(
-        'data/integrated_call_samples_v2.20130502.ALL.ped',
+        'data/kgp_meta/integrated_call_samples_v2.20130502.ALL.ped',
         sep='\t',
         usecols=['Family ID', 'Individual ID', 'Gender', 'Population']
     )
     # 1000 Genomes map between population and super population
     kgp_super_pop_df = pd.read_csv(
-        'data/20131219.populations.tsv',
+        'data/kgp_meta/20131219.populations.tsv',
         sep='\t',
         usecols=['Population Code', 'Super Population']
     )
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     classifier = train_classifier(kgp_df, use_pcs)
     del kgp_df
 
-    with open('data/population_classifier.pkl', 'wb') as f:
+    with open('data/models/population_classifier.pkl', 'wb') as f:
         pickle.dump(classifier, f)
 
     ukb_labels_df = classify_ukbb(classifier, use_pcs)

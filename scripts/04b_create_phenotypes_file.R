@@ -41,7 +41,7 @@ phenotypes <- c('bmi', 'blood_pressure_dias', 'blood_pressure_sys','height')
 all_pheno_df <- combine_phenotype_tables(phenotypes)
 
 psam_df <- read_tsv(
-    'data/ukb_filtered/merged.psam',
+    'data/ukb_merged/merged.psam',
     col_types = c('#FID' = col_integer(), 'IID' = col_integer(), 'SEX' = col_character())
 )
 

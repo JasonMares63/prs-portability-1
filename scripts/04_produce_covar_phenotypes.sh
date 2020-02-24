@@ -9,7 +9,7 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate ../envs
+source activate prs
 
 # Creates covariate file with age, sex, age*sex, age^2, age^2 * sex and PC1, ..., PC20
 python scripts/04a_create_covariates.py

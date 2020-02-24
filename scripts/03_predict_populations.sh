@@ -9,7 +9,7 @@
 set -e
 
 module load anaconda/3-4.2.0
-source activate ../envs
+source activate prs
 
 # Train a classifier on 1000 Genomes to predict super population labels
 # Save classifier and evaluate it on the UK Biobank PCs
