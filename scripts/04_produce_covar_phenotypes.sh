@@ -3,7 +3,7 @@
 #SBATCH --account=mfplab
 #SBATCH --job-name=covariates_phenotypes
 #SBATCH -c 2
-#SBATCH --time=1:00:00
+#SBATCH --time=10
 #SBATCH --mem-per-cpu=6gb
 
 set -e

@@ -13,40 +13,40 @@ irnt <- function(pheno) {
     return(phenoIRNT);
 }
 
+# Table of each trait's name, code, field ID, and dtype (including eid)
+traits_info <- read_delim('data/martin_gwas_info.txt', delim = ' ',
+                          col_types = cols_only(Trait = col_character(),
+                                                UKBBcode = col_character())) %>%
+    mutate(
+        ukb_field = str_glue('{UKBBcode}-0.0') %>% as.character,
+        dtype = 'd'
+    ) %>%
+    add_row(Trait = 'eid', UKBBcode = 'eid', ukb_field = 'eid', dtype = 'c')
 
-combine_phenotype_tables <- function(phenotypes_vector) {
-    all_pheno_df <- NULL
-    for (pheno in phenotypes_vector) {
-        pheno_df <- read_delim(
-            str_glue('data/phenotypes/ukb.{pheno}.txt'), delim = ' ', col_names = c('IID', pheno),
-            col_types = c('IID' = col_integer(), pheno = col_double())
-        )
-        pheno_df <- pheno_df %>%
-        # Create a new column named after the current phenotype
-	    mutate(!!pheno := irnt(pheno_df %>% pull(pheno)))
+# Load only the 18 columns of interest
+field_to_dtype <- traits_info %>%
+    select(ukb_field, dtype) %>%
+    deframe %>%
+    as.list
 
-        # Join each new phenotype on the existing data.frame, if it exists
-        if (all_pheno_df %>% is.null) {
-            all_pheno_df <- pheno_df
-        } else {
-            all_pheno_df <- all_pheno_df %>%
-                left_join(pheno_df, by = 'IID')
-        }
-    }
-    return(all_pheno_df)
-}
+raw_phenotypes_df <- read_csv('/rigel/mfplab/users/mnz2108/ukbiobank/data/ukb40732.csv',
+                              col_types = do.call(cols_only, field_to_dtype))
 
-
-phenotypes <- c('bmi', 'blood_pressure_dias', 'blood_pressure_sys','height')
-all_pheno_df <- combine_phenotype_tables(phenotypes)
-
+# Samples table (because not assured that FID == IID)
 psam_df <- read_tsv(
     'data/ukb_merged/merged.psam',
-    col_types = c('#FID' = col_integer(), 'IID' = col_integer(), 'SEX' = col_character())
+    col_types = cols_only('#FID' = col_character(), 'IID' = col_character())
 )
 
-all_pheno_df %>%
+raw_phenotypes_df %>%
+    # Rename fields to their human-readable names
+    pivot_longer(-eid, names_to = 'ukb_field') %>%
+    inner_join(traits_info %>% select(-dtype, -UKBBcode), by = 'ukb_field') %>%
+    pivot_wider(id_cols = eid, names_from = Trait, values_from = value) %>%
+    rename(IID = eid) %>%
+    # Apply inverse rank normal transformation
+    mutate_at(.vars = vars(-IID), .funs = irnt) %>%
+    # Add FID column using the sample file
     left_join(psam_df, by = 'IID') %>%
-    select('#FID', IID, BMI = bmi, DBP = blood_pressure_dias,
-           SBP = blood_pressure_sys, Height = height) %>%
+    select('#FID', IID, all_of(traits_info %>% filter(Trait != 'eid') %>% pull(Trait))) %>%
     write_delim('data/phenotypes/full_phenotypes.pheno', delim = ' ', na = 'NA')
