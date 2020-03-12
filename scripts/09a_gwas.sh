@@ -16,7 +16,7 @@ set -e
 
 for phenotype in BMI DBP SBP Height
 do
-  /rigel/mfplab/users/mnz2108/plink/plink2 \
+  plink2 \
     --pfile data/ukb_populations/EUR_all \
     --psam data/ukb_populations/EUR_all_nosex.psam \
     --keep data/ukb_populations/${phenotype}.txt \

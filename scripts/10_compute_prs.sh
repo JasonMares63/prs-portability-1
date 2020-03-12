@@ -19,7 +19,7 @@ do
     --output data/gwas_results/no_interaction.${phenotype}.glm.assoc
 
   # Clump GWAS results using LD thresholds
-  /rigel/mfplab/users/mnz2108/plink/plink \
+  plink \
     --bfile data/kgp_merged/merged \
     --clump data/gwas_results/no_interaction.${phenotype}.glm.assoc \
     --clump-p1 0.01 \
@@ -47,7 +47,7 @@ do
       --output data/gwas_results/PRS_${phenotype}_threshold_${threshold}.txt
 
     # Score each individual using the SNPs below a p-value threshold and GWAS betas
-    /rigel/mfplab/users/mnz2108/plink/plink2 \
+    plink2 \
       --pfile data/ukb_filtered/merged \
       --extract data/gwas_results/PRS_${phenotype}_threshold_${threshold}.txt \
       --score data/gwas_results/no_interaction.${phenotype}.glm.linear 3 6 9 header no-mean-imputation \

@@ -28,7 +28,7 @@ do
     -o data/intersecting_filtered/chr${i}.snps
 
   # Convert from Plink 1 to Plink 2 and compute the SNPs to be dropped
-  /rigel/mfplab/users/mnz2108/plink/plink2 \
+  plink2 \
     --bfile /rigel/mfplab/users/hsm2137/1000_genome/data/plink_files/chr$i \
     --maf 0.05 \
     --geno 0.01 \
@@ -38,7 +38,7 @@ do
     --out data/kgp_filtered/chr$i
 
   # Write a new file using only filtered SNPs for 1000 Genomes (Plink 1 format)
-  /rigel/mfplab/users/mnz2108/plink/plink2 \
+  plink2 \
     --pfile data/kgp_filtered/chr$i \
     --extract data/kgp_filtered/chr${i}.prune.in \
     --make-bed \
@@ -50,13 +50,13 @@ done
 
 # Merge all the 1000 Genomes files into a single Plink 1 file
 # Currently, Plink 2 does not appear to support this merge operation.
-/rigel/mfplab/users/mnz2108/plink/plink \
+plink \
   --merge-list data/kgp_merged/kgp_merged_list.txt \
   --make-bed \
   --out data/kgp_merged/merged
 
 # Convert the merged Plink 1 file to the Plink 2 format (pgen/pvar/psam)
-/rigel/mfplab/users/mnz2108/plink/plink2 \
+plink2 \
   --bfile data/kgp_merged/merged \
   --make-pgen \
   --out data/kgp_merged/merged
@@ -68,7 +68,7 @@ done
 for i in $(seq 1 22);
 do
   # Make a Plink 1 representation of the chromosome using only the filtered intersecting SNPs
-  /rigel/mfplab/users/mnz2108/plink/plink2 \
+  plink2 \
     --memory 40000 \
     --bgen /rigel/mfplab/users/hsm2137/ukbiobank/data/imputed/bgen_files/_001_ukb_imp_chr${i}_v2.bgen ref-first \
     --sample /rigel/mfplab/users/hsm2137/ukbiobank/data/imputed/bgen_files/ukb_imp.sample \
@@ -81,7 +81,7 @@ do
 done
 
 # Merge the Plink 1 format files into one combined Plink 1 file
-/rigel/mfplab/users/mnz2108/plink/plink \
+plink \
   --memory 40000 \
   --merge-list data/ukb_merged/ukb_merged_list.txt \
   --remove data/ukb_meta/excluded_samples.sam \
@@ -89,7 +89,7 @@ done
   --out data/ukb_merged/merged
 
 # Convert the merged Plink 1 file to Plink 2 format (.pgen/.pvar, etc.)
-/rigel/mfplab/users/mnz2108/plink/plink2 \
+plink2 \
   --bfile data/ukb_merged/merged \
   --make-pgen \
   --out data/ukb_merged/merged
