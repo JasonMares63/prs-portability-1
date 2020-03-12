@@ -13,7 +13,7 @@ source activate prs
 
 python scripts/07a_make_fst_clusters.py
 
-plink \
+plink2 \
   --pfile data/ukb_merged/merged \
   --within data/ukb_populations/fst_clusters.txt \
   --fst
