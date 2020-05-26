@@ -17,6 +17,7 @@ if __name__ == "__main__":
 
     (
         pd.read_csv(args.path, sep=r'\s+')
+        .drop_duplicates(subset=['SNP'], keep=False)
         .loc[lambda df: df['P'] <= args.threshold, 'SNP']
         .to_csv(args.output, sep=' ', index=False, float_format='%.9g',
                 header=False)

@@ -1,6 +1,14 @@
 import pandas as pd
 
 
+def normalize_covariates(df):
+    covars = df.loc[:, 'sex_covar':'PC20_AVG']
+    return_df = df.copy()
+    return_df.loc[:, 'sex_covar':'PC20_AVG'] = (
+        covars - covars.mean(axis=0)) / covars.std(axis=0)
+    return return_df
+
+
 if __name__ == '__main__':
     sex_df = pd.read_csv('data/phenotypes/ukb.sex.txt', sep=r'\s+',
                          header=None, names=['IID', 'is_male'])
@@ -25,6 +33,7 @@ if __name__ == '__main__':
         )
         .filter(items=['#FID', 'IID', 'sex_covar', 'age', 'age_sq', 'age_sex',
                        'age_sq_sex', *[f'PC{i}_AVG' for i in range(1, 21)]])
+        .pipe(normalize_covariates)
         .to_csv('data/ukb_merged/covar_all_samples.covar', sep='\t',
                 na_rep='NA', header=True, index=False, float_format='%.7g')
     )

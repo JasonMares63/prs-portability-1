@@ -15,6 +15,7 @@ mkdir data/ambiguous_indel_snps \
       data/ukb_merged \
       data/ukb_meta \
       data/ukb_populations \
+      data/bbj \
       data/models \
       data/phenotypes \
       data/gwas_results \

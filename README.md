@@ -14,9 +14,3 @@ This project uses data from four sources.
 * Neale Lab UK Biobank GWAS
     * Included for comparisons of GWAS results
 
-## Running
-
-This project was largely conducted on non-public computational resources and data.
-Because of this, it is unlikely that the workflow could be replicated exactly.
-However, each script's purpose is documented both in its name and comments within each file.
-For questions, please open an issue or contact @zietzm.
