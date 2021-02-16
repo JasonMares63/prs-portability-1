@@ -16,6 +16,7 @@ for phenotype in BMI Lymphocyte Height Eosinophil MCH MCV Monocyte Platelet RBC 
 do
   # Can't use Plink optimization for all phenotypes simultaneously because
   # each phenotype uses different samples.
+  # The below hashtags refer to past GWAS, using genotype and UKBB
   for chromosome in $(seq 1 22);
   do
     $plink2\
@@ -23,6 +24,7 @@ do
 #      --bgen /rigel/mfplab/projects/ukb_hakhamanesh/imputed/bgen_files/_001_ukb_imp_chr${chromosome}_v2.bgen ref-first \
 #      --sample /rigel/mfplab/projects/ukb_hakhamanesh/imputed/bgen_files/ukb_imp.sample \
 #      --extract /rigel/mfplab/projects/prs-portability/data/bbj/snps.txt \
+#      --keep data/ukb_populations/${phenotype}.txt
       --keep data/ukb_populations/${phenotype}1.txt \
       --pheno data/phenotypes/full_phenotypes.pheno \
       --pheno-name $phenotype \
