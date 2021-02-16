@@ -60,30 +60,6 @@ load_non_prs_df <- function() {
   return(phenotypes_df)
 }
 
-
-final_fst_df <- read_tsv('data/fst/final_fst.tsv')
-
-cutpoints <<- seq(min(final_fst_df$Weighted_Fst,na.rm=T),
-                  max(final_fst_df$Weighted_Fst,na.rm=T),length=9+1)
-final_fst_df <- final_fst_df %>%
-  mutate(weighted_fst_groups = Weighted_Fst %>% cut(.,breaks=cutpoints)) %>%
-  add_count(weighted_fst_groups) %>%
-  rename(fst_groups_count=n)
-
-covar_df <- read_tsv('data/ukb_merged/covar_all_samples.covar') %>%
-  select(PC1_AVG,PC2_AVG,population)
-cutpoints1 <- seq(min(covar_df$PC1_AVG, na.rm=T),
-                   max(covar_df$PC1_AVG,na.rm=T),length=8+1)
-cutpoints2 <- seq(min(covar_df$PC2_AVG,na.rm=T),
-                   max(covar_df$PC2_AVG,na.rm=T),length=8+1)
-covar_df <- covar_df %>%
-  mutate(PC1_groups = PC1_AVG %>% cut(.,breaks=cutpoints1)) %>%
-  mutate(PC2_groups = PC2_AVG %>% cut(.,breaks=cutpoints2)) %>%
-  add_count(PC1_groups) %>%
-  rename(PC1_groups_count=n) %>%
-  add_count(PC2_groups) %>%
-  rename(PC2_groups_count=n)
-
 get_r2_values <- function(df,group_var) {
   # Computes the partial R^2 attributable to the PRS
   #    group_by(population, phenotype, threshold) %>%
@@ -140,14 +116,14 @@ make_prs_evaluation_df <- function(non_prs_df,group_var_as_string) {
   col_types = c('#FID' = col_integer(), 'IID' = col_integer(), 'ALLELE_CT' = col_integer(),
                 'NAMED_ALLELE_DOSAGE_SUM' = col_double(), 'SCORE1_AVG' = col_double())
   prs_df <- data.frame()
-  for (file in list.files(path = 'data/prs/Martin_et_al_approach_scores',
+  for (file in list.files(path = 'data/prs',
                           pattern = '[a-zA-Z]+_[0-9]_scores.sscore', full.names = T)) {
     print(file)
     this_df <- read_tsv(file, col_types = col_types) %>%
       filter(IID > 0) %>%
       select('#FID', 'IID', prs = 'SCORE1_AVG') %>%
       mutate(
-        phenotype = str_extract(string = file, pattern = '(?<=data/prs/Martin_et_al_approach_scores/)[A-Za-z]+(?=_)'),
+        phenotype = str_extract(string = file, pattern = '(?<=data/prs/)[A-Za-z]+(?=_)'),
         threshold = str_extract(string = file, pattern = '[0-4]') %>% as.integer
       ) %>%
       inner_join(non_prs_df, by =  c('#FID', 'IID','phenotype'))%>%
@@ -313,6 +289,7 @@ fst_prs <- function(prs_df){
  thresholds <- prs_df %>%
    subset(phenotype!="Basophil") %>%
    subset(threshold!=5) %>%
+   subset(group_number==1) %>%
    group_by(phenotype) %>%
    slice(which.max(partial)) %>%
    select(phenotype,threshold)
@@ -352,9 +329,21 @@ pcs_prs <- function(prs_df,pc_num){
   prs_df$threshold <- prs_df$threshold %>% as.factor()
   levels(prs_df$threshold) <- c("5e-8","1e-6","1e-4","1e-3","1e-2")
   
+  if(pc_num==1){
+    legend_items = legend_items_pc1
+    range = range_pc1
+    eur = max(prs_df$group_number)
+  }
+  if(pc_num==2){
+    legend_items = legend_items_pc2
+    range = range_pc2
+    eur = min(prs_df$group_number)
+  }
+  
   thresholds <- prs_df %>%
     subset(phenotype!="Basophil") %>%
     subset(threshold!=5) %>%
+    subset(group_number==eur) %>%
     group_by(phenotype) %>%
     slice(which.max(partial)) %>%
     select(phenotype,threshold)
@@ -369,15 +358,8 @@ pcs_prs <- function(prs_df,pc_num){
     plot_df <- rbind(plot_df,sub_df)
     
   }
+
   
-  if(pc_num==1){
-    legend_items = legend_items_pc1
-    range = range_pc1
-  }
-  if(pc_num==2){
-    legend_items = legend_items_pc2
-    range = range_pc2
-  }
   
   plot_df %>%
     ggplot(aes(x=group_number,y=partial, 
@@ -402,7 +384,8 @@ pcs_prs <- function(prs_df,pc_num){
 pc_plot <- function(covar_df){
   covar_df %>%
     ggplot(aes(x=PC1_AVG,y=PC2_AVG,color=population))+
-    geom_point()
+    geom_point()+
+    labs(title="PCA1 vs PCA2 of testing UKBB individuals")
   
 } 
   
@@ -448,30 +431,26 @@ cutpoints1 #PC1
 cutpoints2 #PC2
 cutpoints #Fst
 
-fst_values <- non_prs_df %>% select(weighted_fst_groups)
-
-pcs <- non_prs_df %>% select(PC1_groups,PC2_groups)
-
 fst_df <- prs_df_fst %>% 
-  mutate(group_number= rep(1:10,5*17)) %>%
-  filter(group_number!=10) 
+  mutate(group_number= weighted_fst_groups) %>%
+  filter(weighted_fst_groups!=10) 
 
 pc1_df <- prs_df_PC1 %>%
-  mutate(group_number= rep(1:10,5*17)) %>%
-  filter(group_number!=10) 
+  mutate(group_number= PC1_groups) %>%
+  filter(PC1_groups!=10) 
 
 pc2_df <- prs_df_PC2 %>% 
-  mutate(group_number= rep(1:10,5*17)) %>%
-  filter(group_number!=10) 
+  mutate(group_number= PC2_groups) %>%
+  filter(PC2_groups!=10) 
 
 
-#fst_df %>% write_tsv('data/prs/Martin_et_al_approach_scores_FST_groups.tsv')
-#pc1_df %>% write_tsv('data/prs/Martin_et_al_approach_scores_PC1_groups.tsv')
-#pc2_df %>% write_tsv('data/prs/Martin_et_al_approach_scores_PC2_groups.tsv')
+fst_df %>% write_tsv('data/prs/UKBB_genotype_scores_fst.tsv')
+pc1_df %>% write_tsv('data/prs/UKBB_genotype_scores_pc1.tsv')
+pc2_df %>% write_tsv('data/prs/UKBB_genotype_scores_pc2.tsv')
 
-fst_df <- read_tsv('data/prs/Martin_et_al_approach_scores_FST_groups.tsv')
-pc1_df <- read_tsv('data/prs/Martin_et_al_approach_scores_PC1_groups.tsv')
-pc2_df <- read_tsv('data/prs/Martin_et_al_approach_scores_PC2_groups.tsv')
+#fst_df <- read_tsv('data/prs/Martin_et_al_approach_scores_FST_groups.tsv')
+#pc1_df <- read_tsv('data/prs/Martin_et_al_approach_scores_PC1_groups.tsv')
+#pc2_df <- read_tsv('data/prs/Martin_et_al_approach_scores_PC2_groups.tsv')
 
 fst_df <- fst_df %>% filter(!phenotype %in%
                        c("Basophil","Hb","DBP",
@@ -531,21 +510,26 @@ range_pc2 <- paste0("PC2 Intervals are sized approximately: ",PC2_values[2]-PC2_
 
 
 
-
-
 fig3_continuous_fst <- plot_figure_3_partial_fst(fst_df)
-ggsave('img/fig3_continuous_fst.png', fig3_continuous_fst, width = 6, height = 10, dpi = 300)
+#ggsave('img/fig3_continuous_fst.png', fig3_continuous_fst, width = 6, height = 10, dpi = 300)
+ggsave('img/UKBB_geno_continuous_fst.png', fig3_continuous_fst, width = 6, height = 10, dpi = 300)
+
 
 fig3_continuous_fst_lines <- fst_prs(fst_df)
-ggsave('img/fig3_continuous_fst_lines.png', fig3_continuous_fst_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
+#ggsave('img/fig3_continuous_fst_lines.png', fig3_continuous_fst_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
+ggsave('img/UKBB_geno_continuous_fst_lines.png', fig3_continuous_fst_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
 
 fig3_continuous_pc1_lines <- pcs_prs(pc1_df,1)
-ggsave('img/fig3_continuous_pc1_lines.png', fig3_continuous_pc1_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
+#ggsave('img/fig3_continuous_pc1_lines.png', fig3_continuous_pc1_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
+ggsave('img/UKBB_geno_continuous_pc1_lines.png', fig3_continuous_pc1_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
 
 fig3_continuous_pc2_lines <- pcs_prs(pc2_df,2)
-ggsave('img/fig3_continuous_pc2_lines.png', fig3_continuous_pc2_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
+#ggsave('img/fig3_continuous_pc2_lines.png', fig3_continuous_pc2_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
+ggsave('img/UKBB_geno_continuous_pc2_lines.png', fig3_continuous_pc2_lines, width = 6*1.4, height = 5*1.25, dpi = 300)
 
-pca_plot <- pc_plot()
+
+pca_plot <- pc_plot(non_prs_df)
+ggsave('img/test_UKBB_pcas.png',pca_plot,width=6,height=10,dpi=300)
 
 ##############
 #Boxplot of FSt distributed across population groups
