@@ -7,7 +7,7 @@ variable = """#!/bin/bash
 #SBATCH --job-name={}
 #SBATCH -c 1
 #SBATCH --time=30:00
-#SBATCH --mem-per-cpu=12gb
+#SBATCH --mem-per-cpu=6gb
 
 set -e
 
@@ -22,9 +22,7 @@ fixed = """# Create PRS score files for several p-value thresholds. Files number
 for threshold in 0 1 2 3 4
 do
   # Score each individual using the SNPs below a p-value threshold and GWAS betas
-  $plink2 \
-    --bfile data/prs/merged_CT_1KG_EUR \
-    --extract data/prs/${phenotype}_threshold_${threshold}.txt \
+  $plink2 --bfile data/prs/test_UKBB_imp_BBJ_GWAS_1KG_EUR_LD_merged --extract data/prs/${phenotype}_threshold_${threshold}.txt \
     --score data/gwas_results/${phenotype}_combined.glm.linear 3 6 9 header no-mean-imputation \
     --memory 10000 \
     --out data/prs/${phenotype}_${threshold}_scores
