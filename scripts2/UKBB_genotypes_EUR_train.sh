@@ -21,18 +21,18 @@ do
       --make-bed \
       --out data/LDpred2/LD_EUR_train_${chromosome}
 
-#   printf "data/ukb_merged/LD_EUR_train_%s\n" $chromosome >> data/ukb_merged/EUR_train_merged_list.txt
+   printf "data/ukb_merged/LD_EUR_train_%s\n" $chromosome >> data/ukb_merged/EUR_train_merged_list.txt
 done
 
-#$plink \
-#  --merge-list data/ukb_merged/EUR_train_merged_list.txt \
-#  --make-bed  \
-#  --out data/ukb_merged/LD_EUR_merged
+$plink \
+  --merge-list data/ukb_merged/EUR_train_merged_list.txt \
+  --make-bed  \
+  --out data/ukb_merged/LD_EUR_merged
 
-#rm data/ukb_merged/LD_EUR_train_*
+rm data/ukb_merged/LD_EUR_train_*
 
-#$plink \
-#  --bfile data/ukb_merged/merged \
-#  --keep data/ukb_populations/EUR_all.txt \
-#  --make-bed \
-#  --out data/ukb_merged/EUR_all
+$plink \
+  --bfile data/ukb_merged/merged \
+  --keep data/ukb_populations/EUR_all.txt \
+  --make-bed \
+  --out data/ukb_merged/EUR_all
