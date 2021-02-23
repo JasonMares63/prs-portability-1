@@ -42,9 +42,14 @@ for (chr in 1:22){{
   
 }}
 
+
+#### Retrieve initial heritability estimate
+
 (ldsc <- with(df_beta, snp_ldsc(ld, length(ld), chi2 = (beta / beta_se)^2,
                                 sample_size = n_eff, blocks = NULL)))
 h2_est <- ldsc[["h2"]]
+
+####### LDpred Auto
 print("LDpred - auto beginning")
 #LDpred2 - auto
 NCORES <- 1
@@ -52,18 +57,18 @@ multi_auto <- snp_ldpred2_auto(corr, df_beta, h2_init = h2_est,
                                vec_p_init = seq_log(1e-4, 0.9, 20),
                                ncores = NCORES)
 
-#beta_auto <- sapply(multi_auto, function(auto) auto$beta_est)
+beta_auto <- sapply(multi_auto, function(auto) auto$beta_est)
 
-#beta_auto_df <- as.data.frame(beta_auto)
-#final_beta_auto <- rowMeans(beta_auto_df)
+beta_auto_df <- as.data.frame(beta_auto)
+final_beta_auto <- rowMeans(beta_auto_df)
 
-#sumstats1 <- sumstats %>%
-#  cbind(beta_auto_df) %>%
-#  mutate(average_BETA=final_beta_auto) %>%
-#  select(-a0,-a1,-beta_se,-p,-n_eff)
+sumstats1 <- sumstats %>%
+  cbind(beta_auto_df) %>%
+  mutate(average_BETA=final_beta_auto) %>%
+  select(-a0,-a1,-beta_se,-p,-n_eff)
 
-#export_file <- paste0("data/LDpred/","{}","_ldpred_auto_results.tsv")
-#sumstats1 %>% write_tsv(export_file)
+export_file <- paste0("data/LDpred/","{}","_ldpred_auto_results.tsv")
+sumstats1 %>% write_tsv(export_file)
 
 p_auto <- sapply(multi_auto, function(auto) auto$p_est)
 export_file <- paste0("data/LDpred/","{}","_ldpred_auto_p_est.tsv")
@@ -77,7 +82,7 @@ variable = """#!/bin/bash
 #SBATCH --account=mfplab
 #SBATCH --job-name={}
 #SBATCH -c 1
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 #SBATCH --mem-per-cpu=10gb
 set -e
 

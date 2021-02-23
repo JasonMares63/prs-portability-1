@@ -3,7 +3,7 @@
 #SBATCH --account=mfplab
 #SBATCH --job-name=Height
 #SBATCH -c 1
-#SBATCH --time=04:00:00
+#SBATCH --time=08:00:00
 #SBATCH --mem-per-cpu=10gb
 set -e
 
